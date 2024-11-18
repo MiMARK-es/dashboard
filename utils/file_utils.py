@@ -33,3 +33,7 @@ def get_last_upload_info(area, upload_folder):
     latest_file = max(files, key=lambda x: x[1])
     timestamp = datetime.fromtimestamp(latest_file[1]).strftime("%Y-%m-%d %H:%M:%S")
     return {"filename": latest_file[0], "timestamp": timestamp}
+
+def is_valid_format(file, valid_formats):
+    """Check if the file format is valid."""
+    return any(file.name.endswith(fmt) for fmt in valid_formats)

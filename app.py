@@ -1,70 +1,37 @@
 import streamlit as st
+from utils.file_utils import handle_upload, get_last_upload_info, is_valid_format
+from utils.area_charts import generate_charts_for_area
 import os
-import shutil
-import pandas as pd
-from datetime import datetime
 
-# Custom module for utility functions
-from utils.file_utils import is_valid_format
+# Define the six areas
+areas = ['clinica', 'financial', 'technical', 'hr', 'regulatory', 'business']
+UPLOAD_FOLDER = '/var/data/uploads'
 
-# Create directories if not already present
-os.makedirs("uploads", exist_ok=True)
-os.makedirs("backups", exist_ok=True)
+# Create two main tabs
+tab_uploads, tab_dashboard = st.tabs(["Upload Files", "General Dashboard"])
 
-# Streamlit app with two tabs
-st.set_page_config(page_title="File Dashboard", layout="wide")
-
-tab1, tab2 = st.tabs(["File Uploads", "Dashboard"])
-
-with tab1:
+# File upload tab
+with tab_uploads:
     st.header("Upload Data Files")
-    uploaded_file = st.file_uploader("Upload a file", type=["csv", "xlsx", "json"])
+    for area in areas:
+        st.subheader(f"{area.capitalize()}")
+        uploaded_file = st.file_uploader(f"Upload a file for {area}", type=["csv", "xlsx", "json"], key=area)
+        if uploaded_file:
+            handle_upload(uploaded_file, area, UPLOAD_FOLDER)
+            st.success(f"File uploaded for {area}.")
 
-    if uploaded_file:
-        # Validate file format
-        if is_valid_format(uploaded_file, [".csv", ".xlsx", ".json"]):
-            # Save uploaded file to 'uploads' directory
-            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            filepath = os.path.join("uploads", uploaded_file.name)
+# General dashboard tab
+with tab_dashboard:
+    st.header("General Dashboard")
+    cols = st.columns(3)  # Create columns for side-by-side chart display (2 rows, 3 columns)
 
-            # Back up old file if it exists
-            if os.path.exists(filepath):
-                backup_path = os.path.join("backups", f"{uploaded_file.name}_{timestamp}")
-                shutil.move(filepath, backup_path)
-
-            # Save new file
-            with open(filepath, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            st.success("File uploaded and saved successfully!")
-        else:
-            st.error("Invalid file format. Please upload a CSV, XLSX, or JSON.")
-
-with tab2:
-    st.header("Dashboard")
-    if os.listdir("uploads"):
-        latest_files = {}
-        for file in os.listdir("uploads"):
-            area = file.split('_')[0]  # Assume filenames start with area (e.g., 'clinics_data.csv')
-            if area not in latest_files or os.path.getmtime(os.path.join("uploads", file)) > os.path.getmtime(os.path.join("uploads", latest_files[area])):
-                latest_files[area] = file
-
-        for area, file in latest_files.items():
-            st.subheader(f"Latest Data for {area.capitalize()}")
-            filepath = os.path.join("uploads", file)
-            try:
-                if file.endswith(".csv"):
-                    data = pd.read_csv(filepath)
-                elif file.endswith(".xlsx"):
-                    data = pd.read_excel(filepath)
-                elif file.endswith(".json"):
-                    data = pd.read_json(filepath)
-                else:
-                    continue
-
-                # Display preview and chart
-                st.write(data.head())
-                st.line_chart(data.select_dtypes(include=["number"]))
-            except Exception as e:
-                st.error(f"Error reading file {file}: {e}")
-    else:
-        st.warning("No files uploaded yet.")
+    for i, area in enumerate(areas):
+        col = cols[i % 3]  # Distribute areas across the columns
+        with col:
+            st.subheader(f"{area.capitalize()}")
+            last_upload_info = get_last_upload_info(area, UPLOAD_FOLDER)
+            if last_upload_info:
+                st.caption(f"Last upload: {last_upload_info['timestamp']} (File: {last_upload_info['filename']})")
+                generate_charts_for_area(area, UPLOAD_FOLDER)
+            else:
+                st.warning(f"No data available for {area} yet.")
