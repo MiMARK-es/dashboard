@@ -11,7 +11,7 @@ def handle_upload(file, area, upload_folder):
 
     # Create backup if file already exists
     if os.path.exists(filepath):
-        backup_folder = f"/var/data/backups/{area}"
+        backup_folder = f"/tmp/backups/{area}"
         os.makedirs(backup_folder, exist_ok=True)
         backup_path = os.path.join(backup_folder, f"{file.name}_{timestamp}")
         shutil.move(filepath, backup_path)

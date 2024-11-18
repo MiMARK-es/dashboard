@@ -5,7 +5,7 @@ import os
 
 # Define the six areas
 areas = ['clinica', 'financial', 'technical', 'hr', 'regulatory', 'business']
-UPLOAD_FOLDER = '/var/data/uploads'
+UPLOAD_FOLDER = '/tmp/uploads'
 
 # Create two main tabs
 tab_uploads, tab_dashboard = st.tabs(["Upload Files", "General Dashboard"])
