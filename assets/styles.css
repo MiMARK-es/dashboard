@@ -1,0 +1,11 @@
+/* Center the logo */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Customize headings and subheadings */
+h1, h2, h3, h4 {
+    color: #f41c11; /* Use a shade matching the red from the logo */
+}

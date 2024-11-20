@@ -1,2 +1,7 @@
-
+# python byte-compiled files
 *.pyc
+
+# virtual environment for local development
+venv/
+
+playground.ipynb

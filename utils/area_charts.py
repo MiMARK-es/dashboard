@@ -2,13 +2,12 @@ import streamlit as st
 import pandas as pd
 import os
 
-def generate_charts_for_area(area, upload_folder):
-    """Generate charts based on the data for the given area."""
-    area_path = os.path.join(upload_folder, area)
-    if not os.path.exists(area_path) or not os.listdir(area_path):
-        st.warning(f"No data available for {area}.")
-        return
+from utils.config import UPLOAD_FOLDER
 
+def generate_charts_for_area(area):
+    """Generate charts based on the data for the given area."""
+    area_path = os.path.join(UPLOAD_FOLDER, area)
+    
     latest_file = max(os.listdir(area_path), key=lambda x: os.path.getmtime(os.path.join(area_path, x)))
     filepath = os.path.join(area_path, latest_file)
 
