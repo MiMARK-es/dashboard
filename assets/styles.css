@@ -6,6 +6,11 @@
 }
 
 /* Customize headings and subheadings */
-h1, h2, h3, h4 {
+h1, h2, h3 {
     color: #f41c11; /* Use a shade matching the red from the logo */
+}
+
+h4 {
+    /* a pink color in the same pallete than the red */
+    color: #ff8bec;
 }

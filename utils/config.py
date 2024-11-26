@@ -1,24 +1,24 @@
 UPLOAD_FOLDER = '/tmp/uploads'
 BACKUP_FOLDER = '/tmp/backups'
 
-areas = {
+AREAS = {
     'Clinical': {
         'RedCap': ['Código RedCap', 'Seleccione su Hospital', 'Código Etiqueta WomEC Muestra nº1'],
         'Benchling': ['Registry ID', 'Sample code']
     },
     'Financial': {
-        'financial': []
+        'financial': ['asdf'] # Dummy column name
     },
     'Technical': {
-        'technical': []
+        'technical': ['asdf'] # Dummy column name
     },
     'HR': {
-        'hr': []
+        'hr': ['asdf'] # Dummy column name
     },
     'Regulatory': {
-        'regulatory': []
+        'regulatory': ['asdf'] # Dummy column name
     },
     'Business': {
-        'business': []
+        'business': ['asdf'] # Dummy column name
     }
 }

@@ -2,18 +2,38 @@ import streamlit as st
 from components.layout import setup_page, setup_tabs
 from components.upload_section import display_upload_section
 from components.dashboard_section import display_dashboard
-from utils.config import areas
+from components.area_sections import *
+from utils.file_utils import all_files_present
+from utils.config import AREAS
 
 # Initialize page layout and load CSS
 setup_page()
 
-# Create tabs for Uploads and Dashboard
-tab_uploads, tab_dashboard = setup_tabs(["Upload Files", "General Dashboard"])
+tab_names = ["Upload Files", "General Dashboard"]
+
+# Add tabs for each area that has all files present
+tab_index = 2
+sections_tabs = {}
+for area in AREAS:
+    if all_files_present(area):
+        tab_names.append(area)
+        sections_tabs[area] = tab_index
+        tab_index += 1
+
+# Create tabs for Uploads, Dashboard and each included area
+tabs = setup_tabs(tab_names)
 
 # Display Upload Section in tab_uploads
-with tab_uploads:
-    display_upload_section(areas)
+with tabs[0]:
+    display_upload_section()
 
 # Display Dashboard Section in tab_dashboard
-with tab_dashboard:
-    display_dashboard(areas)
+with tabs[1]:
+    display_dashboard()
+
+for i in range(2, len(tabs)):
+    with tabs[i]:
+        area = tab_names[i]
+        globals()[f"display_{area.lower()}"]()
+
+

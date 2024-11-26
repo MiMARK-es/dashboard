@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import shutil
 from datetime import datetime
-from utils.config import UPLOAD_FOLDER
+from utils.config import UPLOAD_FOLDER, AREAS
 
 def handle_upload(file, area, expected_file):
     """Save uploaded files and create a backup if needed."""
@@ -54,13 +54,13 @@ def get_last_upload_info(area, expected_filename):
 
 import pandas as pd
 
-def validate_file_format(file, expected_filename, area, areas_config):
+def validate_file_format(file, expected_filename, area):
     """Validate the structure of the uploaded file based on its name and the area."""
     # Get the expected columns for the file
-    if area not in areas_config or expected_filename not in areas_config[area]:
+    if area not in AREAS or expected_filename not in AREAS[area]:
         return False  # No validation rules defined for this file
     
-    expected_columns = areas_config[area][expected_filename]
+    expected_columns = AREAS[area][expected_filename]
 
     try:
         # Check if the file is CSV or Excel and load it accordingly
@@ -88,3 +88,25 @@ def validate_file_format(file, expected_filename, area, areas_config):
         print(f"Error reading file: {e}")
         return False
 
+def all_files_present(area):
+    return all(
+                any(
+                    os.path.exists(os.path.join(UPLOAD_FOLDER, area, f"{file}.{ext}"))
+                    for ext in ["csv", "xlsx"]
+                )
+                for file in AREAS[area]
+            )
+
+def load_data(area):
+    """Load data from the uploaded files for a specific area."""
+    data = {}
+    for expected_file in AREAS[area]:
+        for ext in ["csv", "xlsx"]:
+            filepath = os.path.join(UPLOAD_FOLDER, area, f"{expected_file}.{ext}")
+            if os.path.exists(filepath):
+                if ext == "csv":
+                    data[expected_file] = pd.read_csv(filepath)
+                elif ext == "xlsx":
+                    data[expected_file] = pd.read_excel(filepath)
+                break  # Stop searching if the file was found
+    return data
