@@ -4,3 +4,4 @@ openpyxl      # For reading Excel files
 matplotlib    # For plotting
 numpy
 plotly
+streamlit-plotly-events
