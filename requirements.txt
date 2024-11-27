@@ -3,3 +3,4 @@ pandas
 openpyxl      # For reading Excel files
 matplotlib    # For plotting
 numpy
+plotly

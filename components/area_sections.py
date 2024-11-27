@@ -2,7 +2,7 @@ import streamlit as st
 from utils.config import UPLOAD_FOLDER
 from utils.file_utils import load_data
 from utils.data_utils import display_dataframes
-import altair as alt
+import plotly.graph_objects as go
 
 def display_clinical():
     # Load data from the uploaded files
@@ -14,7 +14,6 @@ def display_clinical():
 
     with col1:
         st.write("### Uploaded Data")
-
         display_dataframes(clinical_data)
 
     with col2:
@@ -22,40 +21,59 @@ def display_clinical():
 
         # Group by center
         center_data = df_redcap.groupby("Seleccione su Hospital").size().reset_index(name="Sample Count")
+        center_data = center_data.sort_values("Sample Count", ascending=True)  # Sort for better visualization
 
-        # Create a horizontal bar chart with Altair
-        chart = alt.Chart(center_data).mark_bar(color="skyblue").encode(
-            y=alt.Y("Seleccione su Hospital:N", title="", sort='-x'),  # Hospital names on y-axis
-            x=alt.X("Sample Count:Q", title="Number of Samples")  # Sample count on x-axis
-        ).properties(
-            width=700,  # Chart width
-            height=400 + len(center_data) * 15  # Adjust height dynamically based on number of hospitals
-        ).configure_axis(
-            labelFontSize=12,  # Increase font size for readability
-            labelLimit=0  # Ensure full labels are displayed (no trimming)
-        ).configure_view(
-            strokeWidth=0  # Remove the border around the chart for cleaner appearance
+        # Create a horizontal bar chart with Plotly
+        fig_center = go.Figure(
+            go.Bar(
+                x=center_data["Sample Count"],
+                y=center_data["Seleccione su Hospital"],
+                orientation="h",  # Horizontal bars
+                marker=dict(color="skyblue"),
+                name="Samples per Center"
+            )
+        )
+
+        # Customize layout
+        fig_center.update_layout(
+            xaxis=dict(title="Number of Samples"),
+            yaxis=dict(title="", automargin=True),  # Ensure hospital names are fully visible
+            height=400 + len(center_data) * 20,  # Dynamically adjust height based on data size
+            title="Samples per Center",
+            showlegend=False,
+            dragmode="pan",
         )
 
         # Display the chart
-        st.altair_chart(chart, use_container_width=True)
+        st.plotly_chart(fig_center, use_container_width=True)
 
     with col3:
         st.write("### Samples per Condition")
 
+        # Group by condition
         pathology_data = df_redcap.groupby("Patología").size().reset_index(name="Sample Count")
+        pathology_data = pathology_data.sort_values("Sample Count", ascending=True)
 
-        chart = alt.Chart(pathology_data).mark_bar(color="salmon").encode(
-            y=alt.Y("Patología:N", title="", sort='-x'),
-            x=alt.X("Sample Count:Q", title="Number of Samples")
-        ).properties(
-            width=700,
-            height=400 + len(pathology_data) * 15
-        ).configure_axis(
-            labelFontSize=12,
-            labelLimit=0
-        ).configure_view(
-            strokeWidth=0
+        # Create a horizontal bar chart with Plotly
+        fig_condition = go.Figure(
+            go.Bar(
+                x=pathology_data["Sample Count"],
+                y=pathology_data["Patología"],
+                orientation="h",  # Horizontal bars
+                marker=dict(color="salmon"),
+                name="Samples per Condition"
+            )
         )
 
-        st.altair_chart(chart, use_container_width=True)
+        # Customize layout
+        fig_condition.update_layout(
+            xaxis=dict(title="Number of Samples"),
+            yaxis=dict(title="", automargin=True),  # Ensure condition names are fully visible
+            height=400 + len(pathology_data) * 20,  # Dynamically adjust height based on data size
+            title="Samples per Condition",
+            showlegend=False,
+            dragmode="pan",
+        )
+
+        # Display the chart
+        st.plotly_chart(fig_condition, use_container_width=True)
