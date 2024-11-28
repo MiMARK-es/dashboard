@@ -25,7 +25,6 @@ def display_clinical():
         filtered_data = filtered_data[filtered_data["Patología"] == st.session_state["selected_condition"]]
 
     # Display active filters as pills
-    st.write("### Filters")
     active_filters = []
     if st.session_state["selected_center"]:
         active_filters.append(f"Center: {st.session_state['selected_center']}")
@@ -38,10 +37,11 @@ def display_clinical():
         st.info("By clicking on a specific center or condition in the charts below, you can filter the data!")
 
     # Reset filters button
-    if st.button("Reset Filters"):
-        st.session_state["selected_center"] = None
-        st.session_state["selected_condition"] = None
-        st.rerun()  # Trigger a rerun
+    if active_filters:
+        if st.button("Reset Filters"):
+            st.session_state["selected_center"] = None
+            st.session_state["selected_condition"] = None
+            st.rerun()  # Trigger a rerun
 
     # Create three columns
     col1, col2, col3 = st.columns(3)
@@ -60,7 +60,7 @@ def display_clinical():
 
         # Group by center
         center_data = filtered_data.groupby("Seleccione su Hospital").size().reset_index(name="Sample Count")
-        center_data = center_data.sort_values("Sample Count", ascending=False)
+        center_data = center_data.sort_values("Sample Count", ascending=True)
 
         # Create a horizontal bar chart for centers
         fig_center = go.Figure(
@@ -69,7 +69,6 @@ def display_clinical():
                 y=center_data["Seleccione su Hospital"],
                 orientation="h",
                 marker=dict(color="skyblue"),
-                name="Samples per Center",
             )
         )
 
@@ -77,7 +76,6 @@ def display_clinical():
         fig_center.update_layout(
             xaxis=dict(title="Number of Samples"),
             yaxis=dict(title="", automargin=True),
-            title="Samples per Center",
             showlegend=False,
             dragmode="pan",
             autosize=True, 
@@ -104,7 +102,7 @@ def display_clinical():
 
         # Group by condition
         pathology_data = filtered_data.groupby("Patología").size().reset_index(name="Sample Count")
-        pathology_data = pathology_data.sort_values("Sample Count", ascending=False)
+        pathology_data = pathology_data.sort_values("Sample Count", ascending=True)
 
         # Create a horizontal bar chart for conditions
         fig_condition = go.Figure(
@@ -113,7 +111,6 @@ def display_clinical():
                 y=pathology_data["Patología"],
                 orientation="h",
                 marker=dict(color="salmon"),
-                name="Samples per Condition"
             )
         )
 
@@ -121,7 +118,6 @@ def display_clinical():
         fig_condition.update_layout(
             xaxis=dict(title="Number of Samples"),
             yaxis=dict(title="", automargin=True),
-            title="Samples per Condition",
             showlegend=False,
             dragmode="pan",
             autosize=True, 
